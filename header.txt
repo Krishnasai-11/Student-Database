@@ -1,0 +1,29 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+
+typedef struct st 
+{
+        struct st *prev;
+        int rn;
+        char name[30];
+        float marks;
+        struct st *next;
+} dll;
+
+dll *head = NULL;
+int rollno = 0;
+
+// Function declarations
+void add_end(void);
+void del_rn(void);
+void del_name(void);
+void print(void);
+void modify_rn(void);
+void modify_name(void);
+void modify_marks(void);
+void save_file(void);
+void sort_name(void);
+void sort_per(void);
+void del_all(void);
+void rev_links(void);

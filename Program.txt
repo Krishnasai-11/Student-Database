@@ -1,0 +1,340 @@
+#include"header.h"
+// Main
+int main()
+{
+        int c;
+        char op, op1;
+        while (1)
+        {
+                printf("\033[31;1;4m*******STUDENT RECORD MENU********\n\033[0m");
+                printf("\n\033[32m");
+                printf("   a/A  :  Add a new record\n");
+                printf("   d/D  :  Delete a record\n");
+                printf("   s/S  :  Show the list\n");
+                printf("   m/M  :  Modify a record\n");
+                printf("   v/V  :  Save it in a file\n");
+                printf("   e/E  :  Exit\n");
+                printf("   t/T  :  Sort the list\n");
+                printf("   l/L  :  Delete all the records\n");
+                printf("   r/R  :  Reverse the list\n\033[0m\n\n");
+
+                printf("\033[35mEnter your choice\n\033[0m");
+                scanf(" %c", &op);
+
+                switch (op)
+                {
+                        case 'a':
+                        case 'A': add_end(); break;
+                        case 'd':
+                        case 'D':
+                                  printf("SUB-MENU\nr/R:Enter rollno to del\nn/N:Enter name to del\n");
+                                  scanf(" %c", &op1);
+                                  if (op1 == 'r' || op1 == 'R') del_rn();
+                                  else if (op1 == 'n' || op1 == 'N') del_name();
+                                  break;
+                        case 's':
+                        case 'S': print(); break;
+                        case 'm':
+                        case 'M':
+                                  printf("Enter which record to search for modification\n");
+                                  printf("r/R:To search a rollno\nn/N:To search a name\np/P:To search a percentage\n");
+                                  scanf(" %c", &op1);
+                                  if (op1 == 'r' || op1 == 'R') modify_rn();
+                                  else if (op1 == 'n' || op1 == 'N') modify_name();
+                                  else if (op1 == 'p' || op1 == 'P') modify_marks();
+                                  break;
+                        case 'v':
+                        case 'V': save_file(); break;
+                        case 't':
+                        case 'T':
+                                  printf("n/N:Sort with name\np/P:Sort with percentage\n");
+                                  scanf(" %c", &op1);
+                                  if (op1 == 'n' || op1 == 'N') sort_name();
+                                  else if (op1 == 'p' || op1 == 'P') sort_per();
+                                  break;
+                        case 'l':
+                        case 'L': del_all(); break;
+                        case 'r':
+                        case 'R': rev_links(); break;
+                        case 'e':
+                        case 'E': exit(0);
+                }
+        }
+}
+
+// Function definitions
+
+void add_end(void)
+{
+        dll *new = calloc(1, sizeof(dll));
+        dll *last;
+        new->rn = ++rollno;
+
+        printf("Enter name: ");
+        scanf("%s", new->name);
+        printf("Enter marks: ");
+        scanf("%f", &new->marks);
+
+        if (head == NULL)
+        {
+                head = new;
+        }
+        else
+        {
+                last = head;
+                while (last->next)
+                        last = last->next;
+                last->next = new;
+                new->prev = last;
+        }
+}
+
+void print(void)
+{
+        dll *p = head;
+        if (!p)
+        {
+                printf("No Records found\n");
+                return;
+        }
+
+        printf("RollNo   Name       Marks\n");
+        printf("--------------------------\n");
+        while (p)
+        {
+                printf("%d        %s        %.2f\n", p->rn, p->name, p->marks);
+                p = p->next;
+        }
+}
+
+void del_rn(void)
+{
+        dll *del = head;
+        int num, found = 0;
+        printf("Enter rollno to delete: ");
+        scanf("%d", &num);
+
+        while (del)
+        {
+                if (del->rn == num)
+                {
+                        found = 1;
+                        if (del == head)
+                                head = del->next;
+                        if (del->prev)
+                                del->prev->next = del->next;
+                        if (del->next)
+                                del->next->prev = del->prev;
+
+                        dll *next_node = del->next;  // Save next node before deletion
+                        free(del);
+                        printf("Record deleted\n");
+
+                        // Decrement roll numbers of subsequent nodes
+                        while (next_node)
+                        {
+                                next_node->rn -= 1;
+                                next_node = next_node->next;
+                        }
+
+                        return;
+                }
+                del = del->next;
+        }
+
+        if (!found)
+                printf("Rollno not found\n");
+}
+
+
+void del_name(void)
+{
+        dll *del = head;
+        char name[30];
+        int found = 0;
+
+        printf("Enter name to delete: ");
+        scanf("%s", name);
+
+        while (del)
+        {
+                if (strcmp(del->name, name) == 0)
+                {
+                        found = 1;
+                        if (del == head)
+                                head = del->next;
+                        if (del->prev)
+                                del->prev->next = del->next;
+                        if (del->next)
+                                del->next->prev = del->prev;
+                        free(del);
+                        printf("Record deleted\n");
+                        return;
+                }
+                del = del->next;
+        }
+        if (!found)
+                printf("Name not found\n");
+}
+
+void modify_rn(void)
+{
+        int rn;
+        dll *p = head;
+        printf("Enter rollno to modify: ");
+        scanf("%d", &rn);
+
+        while (p)
+        {
+                if (p->rn == rn)
+                {
+                        printf("Enter new name: ");
+                        scanf("%s", p->name);
+                        printf("Enter new marks: ");
+                        scanf("%f", &p->marks);
+                        printf("Record updated\n");
+                        return;
+                }
+                p = p->next;
+        }
+        printf("Rollno not found\n");
+}
+
+void modify_name(void)
+{
+        char name[30];
+        dll *p = head;
+        printf("Enter name to modify: ");
+        scanf("%s", name);
+
+        while (p)
+        {
+                if (strcmp(p->name, name) == 0)
+                {
+                        printf("Enter new name: ");
+                        scanf("%s", p->name);
+                        printf("Enter new marks: ");
+                        scanf("%f", &p->marks);
+                        printf("Record updated\n");
+                        return;
+                }
+                p = p->next;
+        }
+        printf("Name not found\n");
+}
+
+void modify_marks(void)
+{
+        float marks;
+        dll *p = head;
+        printf("Enter marks to search: ");
+        scanf("%f", &marks);
+
+        while (p)
+        {
+                if (p->marks == marks)
+                {
+                        printf("Enter new name: ");
+                        scanf("%s", p->name);
+                        printf("Enter new marks: ");
+                        scanf("%f", &p->marks);
+                        printf("Record updated\n");
+                        return;
+                }
+                p = p->next;
+        }
+        printf("Marks not found\n");
+}
+
+void save_file(void)
+{
+        dll *p = head;
+        FILE *fp = fopen("std.txt", "w");
+        if (!fp)
+        {
+                perror("File open failed");
+                return;
+        }
+        while (p)
+        {
+                fprintf(fp, "%d %s %.2f\n", p->rn, p->name, p->marks);
+                p = p->next;
+        }
+
+        fclose(fp);
+        printf("Data saved to std.txt\n");
+}
+
+void sort_name(void)
+{
+        dll *i, *j;
+        for (i = head; i && i->next; i = i->next)
+        {
+                for (j = i->next; j; j = j->next)
+                {
+                        if (strcmp(i->name, j->name) > 0)
+                        {
+                                // Swap data
+                                char tmp_name[30]; float tmp_marks; int tmp_rn;
+                                strcpy(tmp_name, i->name);
+                                strcpy(i->name, j->name);
+                                strcpy(j->name, tmp_name);
+
+                                tmp_marks = i->marks; i->marks = j->marks; j->marks = tmp_marks;
+                                tmp_rn = i->rn; i->rn = j->rn; j->rn = tmp_rn;
+                        }
+                }
+        }
+        printf("Sorted by name\n");
+}
+
+void sort_per(void)
+{
+        dll *i, *j;
+        for (i = head; i && i->next; i = i->next)
+        {
+                for (j = i->next; j; j = j->next)
+                {
+                        if (i->marks < j->marks)
+                        {
+                                // Swap data
+                                char tmp_name[30]; float tmp_marks; int tmp_rn;
+                                strcpy(tmp_name, i->name);
+                                strcpy(i->name, j->name);
+                                strcpy(j->name, tmp_name);
+
+                                tmp_marks = i->marks; i->marks = j->marks; j->marks = tmp_marks;
+                                tmp_rn = i->rn; i->rn = j->rn; j->rn = tmp_rn;
+                        }
+                }
+        }
+        printf("Sorted by marks\n");
+}
+
+void del_all(void)
+{
+        dll *temp;
+        while (head)
+        {
+                temp = head;
+                head = head->next;
+                free(temp);
+        }
+        rollno = 0;
+        printf("All records deleted\n");
+}
+
+void rev_links(void)
+{
+        dll *p = head, *q = NULL, *temp;
+        while (p)
+        {
+                temp = p->next;
+                p->next = p->prev;
+                p->prev = temp;
+                q = p;
+                p = temp;
+        }
+        head = q;
+        printf("List reversed\n");
+}
